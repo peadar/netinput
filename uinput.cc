@@ -61,7 +61,6 @@ main(int argc, char *argv[])
             ev[1].code = 0;
             ev[1].value = 0;
             syscall_ex(write(uinputFd, ev, sizeof ev) == sizeof ev, "write event failed");
-            syscall(fsync(uinputFd), "sync fd");
             std::clog << ".";
         }
     }
