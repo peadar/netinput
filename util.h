@@ -5,6 +5,22 @@
 #include <errno.h>
 #include <string.h>
 
+template <typename Type, typename Close> class Closer {
+   Type item;
+   Close close;
+   bool released;
+public:
+   Closer(const Type &item_, const Close &close_) : item(item_), close(close_), released(false) {}
+   ~Closer() { 
+      if (!released) {
+         close(item);
+      }
+   }
+   operator Type &() { return item; }
+   operator const Type &() const { return item; }
+   Type &release() { released = true; return item;  }
+};
+
 class Exception : public std::exception {
     mutable std::ostringstream str;
     mutable std::string intermediate;
@@ -35,13 +51,18 @@ public:
             syserror = errno;
         getStream() << strerror(syserror);
     }
+    typedef void IsStreamable;
 };
 
 template <typename E, typename Object, typename Test = typename E::IsStreamable>
-inline const E &operator << (const E &stream, const Object &o) {
-    stream.getStream() << o;
-    return stream;
+inline std::ostream &operator << (E &stream, const Object &o) {
+    return stream.getStream() << o;
+}
+
+template <typename Stream> Stream &
+operator << (Stream &s, const std::exception &ex) {
+    return s << ex.what();
 }
 
 
-
+void syscall_ex(bool ok, const char *err);

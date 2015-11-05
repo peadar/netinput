@@ -3,18 +3,6 @@
 #include <fcntl.h>
 #include "util.h"
 
-static void
-syscall_ex(bool result, const char *err)
-{
-    if (!result) {
-        Errno e;
-        e << ": " << err;
-        throw e;
-    }
-}
-
-
-
 int
 main(int argc, char *argv[])
 {
@@ -26,6 +14,7 @@ main(int argc, char *argv[])
     }
 
     syscall_ex(ioctl(uinputFd, UI_SET_EVBIT, EV_REL) == 0, "add relative events");
+    syscall_ex(ioctl(uinputFd, UI_SET_EVBIT, EV_ABS) == 0, "add relative events");
     syscall_ex(ioctl(uinputFd, UI_SET_EVBIT, EV_KEY) == 0, "add key events");
     syscall_ex(ioctl(uinputFd, UI_SET_EVBIT, EV_SYN) == 0, "add syn events");
 
